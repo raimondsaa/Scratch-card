@@ -7,7 +7,8 @@ fetch('/data')
         const rowCount = data.rowCount;
         const columnCount = data.columnCount;
         const items = data.items;
-        console.log(rowCount, columnCount, items);
+        const winnerItemIdxs = data.winnerItemIdxs;
+        console.log(rowCount, columnCount, items, winnerItemIdxs);
     
 
 for(let i = 0; i < rowCount*columnCount;i++){
@@ -113,7 +114,7 @@ function isBetween(number, min, max) {
   }
 
 const seenItems = new Array(rowCount*columnCount).fill(false);
-
+var seenImages = [];
 const scratch = (x, y) => {
     var currentItem = 0;
     for (var currentRow = 0; currentRow < rowCount; currentRow++) {
@@ -126,6 +127,21 @@ const scratch = (x, y) => {
             // console.log(row, column);
             if(!seenItems[currentItem] && row && column){
                 seenItems[currentItem] = true;
+                var thisImage = items[currentItem];
+                let exists = false;
+                for (let i = 0; i < seenImages.length; i++) {
+                    if (seenImages[i][0] === thisImage) {
+                        exists = true;
+                        seenImages[i][1] += 1;
+                        if(seenImages[i][1] == 3){
+                          alert("Uzvara!!!");
+                        }
+                        break;
+                    }
+                }
+                if (!exists) {
+                  seenImages.push([thisImage, 1]);
+                }
                 console.log("Atklāts lauciņš nr.", currentItem);
             }
             currentItem += 1;
