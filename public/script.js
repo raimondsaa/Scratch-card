@@ -1,5 +1,6 @@
 const rowCount = 3;
 const columnCount = 3;
+var win = false;
 fetch('/data')
     .then(response => response.json())
     .then(data => {
@@ -7,8 +8,7 @@ fetch('/data')
         const rowCount = data.rowCount;
         const columnCount = data.columnCount;
         const items = data.items;
-        const winnerItemIdxs = data.winnerItemIdxs;
-        console.log(rowCount, columnCount, items, winnerItemIdxs);
+        console.log(rowCount, columnCount, items);
     
 
 for(let i = 0; i < rowCount*columnCount;i++){
@@ -134,7 +134,8 @@ const scratch = (x, y) => {
                         exists = true;
                         seenImages[i][1] += 1;
                         if(seenImages[i][1] == 3){
-                          alert("Uzvara!!!");
+                          win = true;
+                          alert("Uzvara!!!");// Jāaizvieto ar funkciju no servera, kas alertos uzvar vai zaudē
                         }
                         break;
                     }
@@ -143,6 +144,9 @@ const scratch = (x, y) => {
                   seenImages.push([thisImage, 1]);
                 }
                 console.log("Atklāts lauciņš nr.", currentItem);
+                if(seenItems.every(element => element == true) && !win){
+                  alert("Zaudējums!");// Jāaizvieto ar funkciju no servera, kas alertos uzvar vai zaudē
+                }
             }
             currentItem += 1;
         }

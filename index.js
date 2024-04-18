@@ -20,8 +20,16 @@ app.set('views', 'views');
 app.set('view engine', 'ejs');
 
 
+app.post('/api/nosutit', (req, res) => {
+  console.log(req.body);
 
+  res.end();
+});
 
+app.post('/api/sanemt', (req, res) => {
+	res.send(JSON.stringify([{"id":1,"zina":"viss safe"},{"id":2,"zina":"nav safe"}]));
+	res.end();
+});
 
 
 function setItems(){
@@ -77,7 +85,7 @@ function setItems(){
         }
         // console.log("Funkcija izdod:", items);
         // console.log(imageFiles);
-        resolve({items, winnerItemIdxs});
+        resolve(items);
         // console.log(items);
     });
   });
@@ -85,12 +93,12 @@ function setItems(){
 }
 
 
-app.get('/data', (req, res) => {
-  // var items = [1,2,3];
 
+
+app.get('/data', (req, res) => {
   setItems()
-    .then(({items, winnerItemIdxs}) => {
-      const data = { columnCount: columnCount, rowCount:rowCount, items:items, winnerItemIdxs:winnerItemIdxs };
+    .then((items) => {
+      const data = { columnCount: columnCount, rowCount:rowCount, items:items };
       res.json(data);
     })
     .catch((error) => {
