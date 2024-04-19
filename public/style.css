@@ -55,13 +55,19 @@
   }
 
 
-  /* .grid-container {
+  .grid-container {
     display: grid;
     grid-template-columns: repeat(3, 1fr); 
-    grid-gap: 1px;
+    grid-gap: 0px;
     width: 300px; 
   }
   .grid-item {
     background-color: #ccc;
     height: 100px; 
-  } */
+  }
+  .grid-item img{
+    max-width: 100%;
+    max-height: 100%; 
+    display: block;
+    margin: auto; 
+  }

@@ -5,35 +5,115 @@ const fs = require('fs');
 const app = express();
 
 
-const columnCount = 3;
-const rowCount = 3;
-const items = new Array(rowCount*columnCount);
+const items = new Array(9);
 
 app.use('/public', express.static(path.join(__dirname, '/public')));
 
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use('/images', express.static(path.join(__dirname, '/public/images')));
-app.use('/images', express.static(path.join(__dirname, '/public/images/items')));
 
 
 app.set('views', 'views');
 app.set('view engine', 'ejs');
 
+function readGamesJson(){
+  fs.readFile('public/games.json', 'utf-8', (err, games) => {
+    if (err) {
+      throw err;
+    } else {
+      // console.log("games:", games)
+      if(games == ''){
+        gameArray = [];
+      }else{
+        gameArray = JSON.parse(games);
+      }
+    }
+  });
+}
+readGamesJson();
 
-app.post('/api/nosutit', (req, res) => {
+function getTimeDifferenceInMinutes(date1, date2) {
+  // Calculate the difference in milliseconds
+  const differenceInMilliseconds = Math.abs(date2.getTime() - date1.getTime());
+  // Convert milliseconds to minutes
+  const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
+
+  return differenceInMinutes;
+}
+
+app.post('/api/sakt', (req, res) => {
+  const COOLDOWN = 1;
+  readGamesJson();
   console.log(req.body);
+  var currentTime = new Date(); 
+  canPlay = true;
+  gameID = -1;
+  winner = false;
+	for (g in gameArray) {
+    // console.log(gameArray[g].email, req.body.email);
+		if (gameArray[g].email == req.body.email) {
+      console.log("email jau eksiste");
+      gameID = g;
+      oldStartDate = new Date(gameArray[g].startDateTime);
+     if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN){
+        canPlay = false;
+      }
+		}
+	}
+	if(canPlay){
+    setItems()
+      .then((items) => {
 
-  res.end();
+        if(Math.floor(Math.random() * 4) == 0){
+          winner = true;
+        }
+        if(gameID == -1){
+          gameID = gameArray.length +1;
+          gameArray.push({"ID": gameID, "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items});
+        }else{
+          gameArray[gameID] = {"ID": gameID,  "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items};
+        }
+        const gameArrayJson = JSON.stringify(gameArray);
+        fs.writeFile('public/games.json', gameArrayJson, (err) => {
+          if (err) {
+            throw err;
+          }
+          console.log("New games saved");
+        });
+        // console.log(JSON.stringify([{items: items}]));
+        res.send(JSON.stringify([{items: items}]));
+        // res.end();
+
+        // const data = {items:items };
+        // res.json(data);
+      })
+      .catch((error) => {
+          console.error('Error fetching data:', error);
+      });
+  }else{
+    console.log("Šāds email jau eksistē un pildīja pirms mazāk kā minūtes");
+    // const data = {items:[] };
+    //     res.json(data);
+    res.end();
+  }
+  
 });
 
-app.post('/api/sanemt', (req, res) => {
-	res.send(JSON.stringify([{"id":1,"zina":"viss safe"},{"id":2,"zina":"nav safe"}]));
+app.post('/api/sanemtPazinojumu', (req, res) => {
+  if(winner){
+    res.send(JSON.stringify([{"id":0,"zina":"UZVARA!!!!"}]));
+  }else{
+    res.send(JSON.stringify([{"id":1,"zina":"Zaudējums..."}]));
+  }
 	res.end();
 });
 
 
 function setItems(){
   return new Promise((resolve, reject) => {
+    winner = false;
+    if(Math.floor(Math.random() * 4) == 0){
+      winner = true;
+    }
     items.fill(undefined);
     var winnerItemIdxs = [];
     const itemPath = path.join(__dirname, '/public/images/items') ;
@@ -54,9 +134,8 @@ function setItems(){
       });
         // console.log('Image files:', imageFiles);
         const imageCount = imageFiles.length;
-        if(Math.floor(Math.random() * 4) == 0){//Izdomā vai uzvarēs
+        if(winner){
           console.log("Uzvarēja!");
-          var winner = true;
           var winnerImageIdx = Math.floor(Math.random() * imageCount);
           var winnerImage = imageFiles[winnerImageIdx][0];
           // console.log('Winner image:', winnerImage);
@@ -71,7 +150,6 @@ function setItems(){
             imageFiles[winnerImageIdx][1] += 1;
           }
         }else{
-          var winner = false;
           console.log("Zaudēja");
         }
         for(let i = 0; i < items.length; i++){
@@ -96,40 +174,40 @@ function setItems(){
 
 
 app.get('/data', (req, res) => {
-  setItems()
-    .then((items) => {
-      const data = { columnCount: columnCount, rowCount:rowCount, items:items };
-      res.json(data);
-    })
-    .catch((error) => {
-        console.error('Error fetching data:', error);
-    });
+  readGamesJson();
+  var canPlay = true;
+  for (g in gameArray) {
+    // console.log(gameArray[g].email, req.body.email);
+		if (gameArray[g].email == req.body.email) {
+      console.log("email jau eksiste");
+      emailID = g;
+      oldStartDate = new Date(gameArray[g].startDateTime);
+      // console.log(oldStartDate, currentTime);
+      // console.log("minutes",getTimeDifferenceInMinutes(oldStartDate, currentTime));
+      if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < 5){
+        canPlay = false;
+      }
+		}
+	}
+  if(canPlay){
+    setItems()
+      .then((items) => {
+        const data = {items:items };
+        res.json(data);
+      })
+      .catch((error) => {
+          console.error('Error fetching data:', error);
+      });
+  }else{
+    const data = {items:[] };
+        res.json(data);
+  }
+
+  
  });
 app.get('/', (req, res) => {
 
-  
-  const width = columnCount * 100
-  const height = rowCount * 100
-  const cssContent = `
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(${columnCount}, 1fr); 
-            grid-gap: 0px;
-            width: ${width}px; 
-          }
-          .grid-item {
-            background-color: #ccc;
-            height: 100px; 
-          }
-          .grid-item img{
-            max-width: 100%;
-            max-height: 100%; 
-            display: block;
-            margin: auto; 
-          }
-    `;
         res.render('index', { 
-          cssContent: cssContent,
           title: 'Skape vai Laime', 
           message: 'Šis ir teksts, kuru parāda kā mainīgo', 
           // columnCount: columnCount, 
