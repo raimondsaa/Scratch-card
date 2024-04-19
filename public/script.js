@@ -9,9 +9,8 @@
 //         const columnCount = data.columnCount;
 //         const items = data.items;
 //         console.log(rowCount, columnCount, items);
-    
 function scrape(){
-  init();
+  gotAlert = false;
   console.log("items:", items);
   for(let i = 0; i < 9;i++){
     var imageContainer = document.getElementById('item'+(i+1));
@@ -36,8 +35,10 @@ function scrape(){
     gradientColor.addColorStop(1, "#6414e9");
     context.fillStyle = gradientColor;
     context.fillRect(0, 0, fieldWidth , fieldHeight);
+    context.save();
   };
-  
+  context.restore();
+ 
   //initially mouse X and mouse Y positions are 0
   let mouseX = 0;
   let mouseY = 0;
@@ -135,9 +136,9 @@ function scrape(){
                       if (seenImages[i][0] === thisImage) {
                           exists = true;
                           seenImages[i][1] += 1;
-                          if(seenImages[i][1] == 3){
-                            win = true;
-                            alert("Uzvara!!!");// Jāaizvieto ar funkciju no servera, kas alertos uzvar vai zaudē
+                          if(seenImages[i][1] == 3 && !gotAlert){
+                            gotAlert = true;
+                            sanemtPazinojumu();
                           }
                           break;
                       }
@@ -146,9 +147,9 @@ function scrape(){
                     seenImages.push([thisImage, 1]);
                   }
                   console.log("Atklāts lauciņš nr.", currentItem);
-                  if(seenItems.every(element => element == true) && !win){
-                    alert("Zaudējums!");// Jāaizvieto ar funkciju no servera, kas alertos uzvar vai zaudē
-                  }
+                  if(seenItems.every(element => element == true) && !gotAlert){
+                    gotAlert = true;
+                    sanemtPazinojumu()                  }
               }
               currentItem += 1;
           }
@@ -160,7 +161,7 @@ function scrape(){
     context.arc(x, y, 12, 0, 2 * Math.PI);
     context.fill();
   };
-
+  init();
   window.onload = init();
 
 }
