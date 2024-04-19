@@ -11,9 +11,11 @@
 //         console.log(rowCount, columnCount, items);
     
 function scrape(){
+  init();
   console.log("items:", items);
   for(let i = 0; i < 9;i++){
     var imageContainer = document.getElementById('item'+(i+1));
+    imageContainer.innerHTML = '';
     var img = document.createElement('img');
     img.src = '/public/images/items/'+items[i];
     img.alt = items[i];
@@ -35,7 +37,7 @@ function scrape(){
     context.fillStyle = gradientColor;
     context.fillRect(0, 0, fieldWidth , fieldHeight);
   };
-
+  
   //initially mouse X and mouse Y positions are 0
   let mouseX = 0;
   let mouseY = 0;
