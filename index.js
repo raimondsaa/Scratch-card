@@ -15,21 +15,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.set('views', 'views');
 app.set('view engine', 'ejs');
 
-function readGamesJson(){
-  fs.readFile('public/games.json', 'utf-8', (err, games) => {
+function readUsersJson(){
+  fs.readFile('public/users.json', 'utf-8', (err, users) => {
     if (err) {
       throw err;
     } else {
-      // console.log("games:", games)
-      if(games == ''){
-        gameArray = [];
+      if(users == ''){
+        userArray = [];
       }else{
-        gameArray = JSON.parse(games);
+        userArray = JSON.parse(users);
       }
     }
   });
 }
-readGamesJson();
+readUsersJson();
 
 function getTimeDifferenceInMinutes(date1, date2) {
   // Calculate the difference in milliseconds
@@ -39,21 +38,25 @@ function getTimeDifferenceInMinutes(date1, date2) {
 
   return differenceInMinutes;
 }
-
+function isValidEmail(email) {
+  // Regular expression for email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
 app.post('/api/sakt', (req, res) => {
   const COOLDOWN = 1;
-  readGamesJson();
+  readUsersJson();
   console.log(req.body);
   var currentTime = new Date(); 
   canPlay = true;
-  gameID = -1;
+  userID = -1;
   winner = false;
-	for (g in gameArray) {
-    // console.log(gameArray[g].email, req.body.email);
-		if (gameArray[g].email == req.body.email) {
+	for (u in userArray) {
+    // console.log(userArray[u].email, req.body.email);
+		if (userArray[u].email == req.body.email) {
       console.log("email jau eksiste");
-      gameID = g;
-      oldStartDate = new Date(gameArray[g].startDateTime);
+      userID = u;
+      oldStartDate = new Date(userArray[u].startDateTime);
      if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN){
         canPlay = false;
       }
@@ -66,18 +69,18 @@ app.post('/api/sakt', (req, res) => {
         if(Math.floor(Math.random() * 4) == 0){
           winner = true;
         }
-        if(gameID == -1){
-          gameID = gameArray.length +1;
-          gameArray.push({"ID": gameID, "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items});
+        if(userID == -1){
+          userID = userArray.length +1;
+          userArray.push({"ID": userID, "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items});
         }else{
-          gameArray[gameID] = {"ID": gameID,  "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items};
+          userArray[userID] = {"ID": userID,  "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items};
         }
-        const gameArrayJson = JSON.stringify(gameArray);
-        fs.writeFile('public/games.json', gameArrayJson, (err) => {
+        const userArrayJson = JSON.stringify(userArray);
+        fs.writeFile('public/users.json', userArrayJson, (err) => {
           if (err) {
             throw err;
           }
-          console.log("New games saved");
+          console.log("New user saved");
         });
         // console.log(JSON.stringify([{items: items}]));
         res.send(JSON.stringify([{items: items}]));
@@ -91,6 +94,7 @@ app.post('/api/sakt', (req, res) => {
       });
   }else{
     console.log("Šāds email jau eksistē un pildīja pirms mazāk kā minūtes");
+    console.log("Jāgaida vēl ",COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000, " sekundes");
     // const data = {items:[] };
     //     res.json(data);
     res.end();
@@ -174,14 +178,14 @@ function setItems(){
 
 
 app.get('/data', (req, res) => {
-  readGamesJson();
+  readUsersJson();
   var canPlay = true;
-  for (g in gameArray) {
-    // console.log(gameArray[g].email, req.body.email);
-		if (gameArray[g].email == req.body.email) {
+  for (u in userArray) {
+    // console.log(userArray[g].email, req.body.email);
+		if (userArray[u].email == req.body.email) {
       console.log("email jau eksiste");
-      emailID = g;
-      oldStartDate = new Date(gameArray[g].startDateTime);
+      emailID = u;
+      oldStartDate = new Date(userArray[u].startDateTime);
       // console.log(oldStartDate, currentTime);
       // console.log("minutes",getTimeDifferenceInMinutes(oldStartDate, currentTime));
       if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < 5){

@@ -9,7 +9,10 @@
 //         const columnCount = data.columnCount;
 //         const items = data.items;
 //         console.log(rowCount, columnCount, items);
-function scrape(){
+
+const scrathLayer = new Image();
+scrathLayer.src = '/public/images/scratch-layer.png';
+function saktSpeli(){
   gotAlert = false;
   console.log("items:", items);
   for(let i = 0; i < 9;i++){
@@ -21,6 +24,8 @@ function scrape(){
     imageContainer.appendChild(img);
   }
 
+  document.getElementById('backgroundImage').src = '/public/images/Dena.png';
+
   let canvas = document.getElementById("scratch");
   let context = canvas.getContext("2d");
 
@@ -28,13 +33,14 @@ function scrape(){
   fieldHeight = canvas.clientHeight;
   // const rowCount = 3;
   // const columnCount = 3;
-
   const init = () => {
-    let gradientColor = context.createLinearGradient(0, 0, 135, 135);
-    gradientColor.addColorStop(0, "#c3a3f1");
-    gradientColor.addColorStop(1, "#6414e9");
-    context.fillStyle = gradientColor;
-    context.fillRect(0, 0, fieldWidth , fieldHeight);
+    // let gradientColor = context.createLinearGradient(0, 0, 135, 135);
+    // gradientColor.addColorStop(0, "#c3a3f1");
+    // gradientColor.addColorStop(1, "#6414e9");
+    // context.fillStyle = gradientColor;
+    // context.fillRect(0, 0, fieldWidth , fieldHeight);
+   
+    context.drawImage(scrathLayer, 0, 0, canvas.width, canvas.height);
     context.save();
   };
   context.restore();
@@ -76,7 +82,10 @@ function scrape(){
   //Get left and top of canvas
   let rectLeft = canvas.getBoundingClientRect().left;
   let rectTop = canvas.getBoundingClientRect().top;
-
+  window.addEventListener('resize', () => {
+    rectTop = canvas.getBoundingClientRect().top;
+    rectLeft = canvas.getBoundingClientRect().left;
+});
   //Exact x and y position of mouse/touch
   const getXY = (e) => {
     mouseX = (!isTouchDevice() ? e.pageX : e.touches[0].pageX) - rectLeft;
@@ -113,19 +122,38 @@ function scrape(){
     isDragged = false;
   });
 
+  document.addEventListener('mousedown', () => {
+    isDraggedOutside = true;
+});
+document.addEventListener('mouseup', () => {
+    isDraggedOutside = false;
+});
+
+  canvas.addEventListener("mouseover", () => {
+    isDragged = isDraggedOutside;
+  });
+
   function isBetween(number, min, max) {
       return number > min && number < max;
     }
   const seenItems = new Array(9).fill(false);
   var seenImages = [];
   const scratch = (x, y) => {
+    //destination-out draws new shapes behind the existing canvas content
+    context.globalCompositeOperation = "destination-out";
+    context.beginPath();
+    //arc makes circle - x,y,radius,start angle,end angle
+    context.arc(x, y, 12, 0, 2 * Math.PI);
+    context.fill();
+
+    if(!gotAlert){
       var currentItem = 0;
       for (var currentRow = 0; currentRow < 3; currentRow++) {
-          var row = isBetween(y, fieldHeight * currentRow/3, fieldHeight * (currentRow+1)/3);
+          var row = isBetween(y, fieldHeight * currentRow/3 +20, fieldHeight * (currentRow+1)/3 -20);
           // console.log("y:",y,"ir starp",fieldHeight * currentRow/3, fieldHeight * (currentRow+1)/3)
           for (var currentColumn = 0; currentColumn < 3; currentColumn++) {
               // console.log("x:",x,"ir starp",fieldHeight * currentRow/3, fieldHeight * (currentRow+1)/3)
-              var column = isBetween(x, fieldWidth * currentColumn/3, fieldWidth * (currentColumn+1)/3);
+              var column = isBetween(x, fieldWidth * currentColumn/3 +20, fieldWidth * (currentColumn+1)/3 -20);
               // console.log(currentRow, currentColumn);
               // console.log(row, column);
               if(!seenItems[currentItem] && row && column){
@@ -153,15 +181,9 @@ function scrape(){
               }
               currentItem += 1;
           }
+        }
       }
-    //destination-out draws new shapes behind the existing canvas content
-    context.globalCompositeOperation = "destination-out";
-    context.beginPath();
-    //arc makes circle - x,y,radius,start angle,end angle
-    context.arc(x, y, 12, 0, 2 * Math.PI);
-    context.fill();
   };
-  init();
   window.onload = init();
 
 }

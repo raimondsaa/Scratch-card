@@ -17,6 +17,7 @@
       <h1 id ="virsraksts" style="text-align: center " >Skrāpē, bet nelaimē neko</h1>
       <div id="testdiv">lol</div>
       <div class="base">
+        <img src="/public/images/background-layer.png" class="background-image" id="backgroundImage">
         <div class="grid-container">
             <div class="grid-item" id="item1"></div>
             <div class="grid-item" id="item2"></div>
@@ -31,8 +32,8 @@
       </div>
       <canvas id="scratch" width="300" height="300"></canvas>
     </div>
-    <button onclick="sutit()" id="sutit_poga" >Nosūtīt</button>
     <input id="email" type="email">
+    <button onclick="sutit()" id="sutit_poga" >Nosūtīt</button><br>
     <button  onclick="sanemtPazinojumu()">Saņemt</button>
     <!-- Script -->
     <script src="/public/script.js"></script>
@@ -52,14 +53,16 @@ function sutit(){
         email: email, 
       },
       success: function (data, status, xhr) {
-        console.log("Incoming data:", data);
+        // console.log("Incoming data:", data);
         if(data == ''){
-          alert("tukši dati");
+          // alert("tukši dati");
+          alert("Jāuzgiada pirms var atkal spēlēt!");
         }else{
           data = JSON.parse(data);
+          items = data[0].items;
+          saktSpeli();
         }
-        items = data[0].items;
-        scrape();
+        
       }
   });
 }
@@ -74,7 +77,7 @@ function sanemtPazinojumu(){
     //  teksts: teksts
     },
     success: function (data, status, xhr) {
-console.log(data)
+      // console.log(data)
       data = JSON.parse(data);
         $('#testdiv').html(data[0].zina);
         alert(data[0].zina)
