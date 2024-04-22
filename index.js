@@ -14,12 +14,6 @@ app.set('view engine', 'ejs');
 
 const items = new Array(9);
 
-
-app.get('/read-cookie', (req, res) => {
-  const username = req.cookies.username;
-  res.send(`Hello ${username}`);
-});
-
 function readUsersJson(){
   users = fs.readFileSync('public/users.json', 'utf-8');
   if(users == ''){
@@ -28,15 +22,11 @@ function readUsersJson(){
     userArray = JSON.parse(users);
   }
 }
-
 readUsersJson();
 
 function getTimeDifferenceInMinutes(date1, date2) {
-  // Calculate the difference in milliseconds
   const differenceInMilliseconds = Math.abs(date2.getTime() - date1.getTime());
-  // Convert milliseconds to minutes
   const differenceInMinutes = Math.floor(differenceInMilliseconds / (1000 * 60));
-
   return differenceInMinutes;
 }
 function isValidEmail(email) {
@@ -46,9 +36,8 @@ function isValidEmail(email) {
 }
 app.post('/api/sakt', (req, res) => {
   if(!isValidEmail(req.body.email)){
-    return res.send("!email");
+    return res.send(JSON.stringify({type:"!email"}));
   }
-
   const COOLDOWN = 5;
   readUsersJson();
   // console.log(req.body);
@@ -71,7 +60,7 @@ app.post('/api/sakt', (req, res) => {
     setItems()
       .then((result) => {
         const { items, winnerImage} = result;
-        console.log("winnerImage no funkcijas:", winnerImage);
+        // console.log("winnerImage no funkcijas:", winnerImage);
         if(Math.floor(Math.random() * 4) == 0){
           winner = true;
         }
@@ -89,28 +78,32 @@ app.post('/api/sakt', (req, res) => {
           console.log("New user saved");
         });
         // console.log(JSON.stringify([{items: items}]));
-        res.cookie('email', req.body.email, { secure:true});
-        return res.send(JSON.stringify([{items: items}]));
+        if(req.body.allowCookies == "true"){
+          res.cookie('email', req.body.email);
+        }
+        return res.send(JSON.stringify({type: "ok", items: items}));
       })
       .catch((error) => {
           console.error('Error fetching data:', error);
       });
   }else{
+    var secondsLeft = parseInt(COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000)
     console.log("Šāds email jau eksistē un pildīja pirms mazāk kā minūtes");
-    console.log("Jāgaida vēl ",COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000, " sekundes");
+    console.log("Jāgaida vēl ",secondsLeft, " sekundes");
     // const data = {items:[] };
     //     res.json(data);
-    res.cookie('email', req.body.email, {secure:true});
-    return res.send("wait");
+    if(req.body.allowCookies == "true"){
+      res.cookie('email', req.body.email);
+    }
+    return res.send(JSON.stringify({type:"wait", time: secondsLeft}));
   }
-  
 });
 
 app.post('/api/sanemtPazinojumu', (req, res) => {
   // console.log(req.body);
   for (u in userArray) {
     // console.log(userArray[u].email, req.body.email);
-		if (userArray[u].email == req.cookies.email) {
+		if (userArray[u].email == req.body.email) {
       if(userArray[u].winner != "unlucky.jpeg"){
         return res.send(JSON.stringify([{"id":0,"message":"UZVARA!!!!", "image": userArray[u].winner}]));
       }
@@ -185,41 +178,6 @@ function setItems(){
   
 }
 
-
-
-
-app.get('/data', (req, res) => {
-  readUsersJson();
-  var canPlay = true;
-  for (u in userArray) {
-    // console.log(userArray[g].email, req.body.email);
-		if (userArray[u].email == req.body.email) {
-      console.log("email jau eksiste");
-      emailID = u;
-      oldStartDate = new Date(userArray[u].startDateTime);
-      // console.log(oldStartDate, currentTime);
-      // console.log("minutes",getTimeDifferenceInMinutes(oldStartDate, currentTime));
-      if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < 5){
-        canPlay = false;
-      }
-		}
-	}
-  if(canPlay){
-    setItems()
-      .then(({items}) => {
-        const data = {items:items };
-        res.json(data);
-      })
-      .catch((error) => {
-          console.error('Error fetching data:', error);
-      });
-  }else{
-    const data = {items:[] };
-        res.json(data);
-  }
-
-  
- });
 app.get('/', (req, res) => {
   var userEmail = ''
   if(req.cookies.email){
@@ -231,12 +189,8 @@ app.get('/', (req, res) => {
       email: userEmail,
       // columnCount: columnCount, 
       // rowCount: rowCount 
-  })
-      
+  }) 
 });
-   
-    
-
 
 app.listen(3000, () => {
 	console.log('Serveris sācis darboties, darbojos uz 3000 porta');

@@ -224,11 +224,12 @@ if(!getCookie('allowCookies')){
   }
   function acceptCookies() {
     document.cookie = "allowCookies=true";
+    allowCookies = true;
     console.log('Cookies accepted');
     modal.style.display = 'none';
   }
   function denyCookies() {
-    // Perform any necessary action for denying cookies (e.g., disable tracking)
+    allowCookies = false;
     console.log('Cookies denied');
     modal.style.display = 'none';
   }

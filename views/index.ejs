@@ -29,7 +29,10 @@
 
     <div class="container">
       <h1 id ="virsraksts" style="text-align: center " >Skrāpē, bet nelaimē neko</h1>
-      <div id="testdiv"></div>
+      <div class="input-container" id="input-container">
+        <input required="" placeholder="e-pasts" id="emailField" type="email" class="input-field" value=<%=email%>>
+        <button onclick="sutit()" id="sutit_poga" class="submit-btn" type="button">Spēlēt</button><br>
+      </div>
       <div class="base">
         <img src="/public/images/background-layer.png" class="background-image" id="backgroundImage">
         <div class="grid-container">
@@ -46,9 +49,7 @@
       </div>
       <canvas id="scratch" width="300" height="300"></canvas>
     </div>
-    <input id="email" type="email" value= <%=email%> >
-    <button onclick="sutit()" id="sutit_poga" >Nosūtīt</button><br>
-    <button  onclick="sanemtPazinojumu()">Saņemt</button>
+    
     <!-- Script -->
     <script src="/public/script.js"></script>
 
@@ -57,29 +58,35 @@
 
 
     <script>
+      console.log("cookies:",document.cookie);
 function sutit(){
   removeAlerts()
-  useremail = document.getElementById("email").value;
+  useremail = document.getElementById("emailField").value;
   $.ajax('/api/sakt',
   {
       type:"POST",
       data:{
         email: useremail, 
+        allowCookies: getCookie('allowCookies'),
       },
       success: function (data, status, xhr) {
-        // console.log("Incoming data:", data);
-        if(data == '!email'){
-          // alert("tukši dati");
-          alert("Ievadi normālu epastu");
-        }else if(data == 'wait'){
-          // alert("tukši dati");
-          alert("Jāuzgiada pirms var atkal spēlēt!");
-        }else{
-          data = JSON.parse(data);
-          items = data[0].items;
-          saktSpeli();
+        console.log("Incoming data:", data);
+        data = JSON.parse(data);
+        console.log(data.type);
+        switch(data.type){
+          case "!email":
+            alert("Ievadi normālu epastu");
+            break;
+          case "wait":
+            alert("Jāuzgiada pirms var atkal spēlēt! \n Jāgaida vēl "+data.time+" sekundes");
+            break;
+          case "ok":
+            items = data.items;
+            saktSpeli();
+            break;
+          default:
+            alert("Something went wrong!");
         }
-        
       }
   });
 }
@@ -100,11 +107,8 @@ if(typeof useremail == 'undefined'){
     //  teksts: teksts
     },
     success: function (data, status, xhr) {
-      console.log("success, data: ",data)
       data = JSON.parse(data);
-        // $('#testdiv').html(data[0].message);
         showCustomAlert(data[0].image, data[0].message);
-        // alert(data[0].message)
     }
   });
 }
