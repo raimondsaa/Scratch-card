@@ -1,20 +1,8 @@
-// const rowCount = 3;
-// const columnCount = 3;
-// var win = false;
-// fetch('data')
-//     .then(response => response.json())
-//     .then(data => {
-//         console.log("data",data); 
-//         const rowCount = data.rowCount;
-//         const columnCount = data.columnCount;
-//         const items = data.items;
-//         console.log(rowCount, columnCount, items);
-
 const scrathLayer = new Image();
 scrathLayer.src = '/public/images/scratch-layer.png';
 function saktSpeli(){
   gotAlert = false;
-  console.log("items:", items);
+  // console.log("items:", items);
   for(let i = 0; i < 9;i++){
     var imageContainer = document.getElementById('item'+(i+1));
     imageContainer.innerHTML = '';
@@ -188,9 +176,8 @@ document.addEventListener('mouseup', () => {
   window.onload = init();
 
 }
-// })
-// .catch(error => console.error('Error fetching data:', error));
 
+//Alerts
 function showCustomAlert(imageUrl, message) {
   const imageDiv = document.createElement('div');
   imageDiv.className = 'custom-alert-image';
@@ -212,11 +199,38 @@ function showCustomAlert(imageUrl, message) {
     event.target.closest('.custom-alert').remove();
   });
 }
-
-
 function removeAlerts(){
   document.querySelectorAll('.custom-alert').forEach(element => {
     element.remove();
   });
 }
 
+// COOKIES
+function getCookie(name) {
+  const cookies = document.cookie.split('; ');
+  for (let cookie of cookies) {
+    const [cookieName, cookieValue] = cookie.split('=');
+    if (cookieName === name) {
+      return decodeURIComponent(cookieValue);
+    }
+  }
+  return false;
+}
+console.log(getCookie('allowCookies'));
+if(!getCookie('allowCookies')){
+  modal = document.getElementById('cookieModal');
+  window.onload = function() {
+    modal.style.display = 'block';
+  }
+  function acceptCookies() {
+    document.cookie = "allowCookies=true";
+    console.log('Cookies accepted');
+    modal.style.display = 'none';
+  }
+  function denyCookies() {
+    // Perform any necessary action for denying cookies (e.g., disable tracking)
+    console.log('Cookies denied');
+    modal.style.display = 'none';
+  }
+  
+}

@@ -1,19 +1,24 @@
 const express = require('express');
 var path = require('path');
-var bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 const fs = require('fs');
+
 const app = express();
 
-
-const items = new Array(9);
-
 app.use('/public', express.static(path.join(__dirname, '/public')));
-
-app.use(bodyParser.urlencoded({ extended: false }));
-
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
 
 app.set('views', 'views');
 app.set('view engine', 'ejs');
+
+const items = new Array(9);
+
+
+app.get('/read-cookie', (req, res) => {
+  const username = req.cookies.username;
+  res.send(`Hello ${username}`);
+});
 
 function readUsersJson(){
   users = fs.readFileSync('public/users.json', 'utf-8');
@@ -43,7 +48,8 @@ app.post('/api/sakt', (req, res) => {
   if(!isValidEmail(req.body.email)){
     return res.send("!email");
   }
-  const COOLDOWN = 1;
+
+  const COOLDOWN = 5;
   readUsersJson();
   // console.log(req.body);
   var currentTime = new Date(); 
@@ -83,6 +89,7 @@ app.post('/api/sakt', (req, res) => {
           console.log("New user saved");
         });
         // console.log(JSON.stringify([{items: items}]));
+        res.cookie('email', req.body.email, { secure:true});
         return res.send(JSON.stringify([{items: items}]));
       })
       .catch((error) => {
@@ -93,6 +100,7 @@ app.post('/api/sakt', (req, res) => {
     console.log("Jāgaida vēl ",COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000, " sekundes");
     // const data = {items:[] };
     //     res.json(data);
+    res.cookie('email', req.body.email, {secure:true});
     return res.send("wait");
   }
   
@@ -102,7 +110,7 @@ app.post('/api/sanemtPazinojumu', (req, res) => {
   // console.log(req.body);
   for (u in userArray) {
     // console.log(userArray[u].email, req.body.email);
-		if (userArray[u].email == req.body.email) {
+		if (userArray[u].email == req.cookies.email) {
       if(userArray[u].winner != "unlucky.jpeg"){
         return res.send(JSON.stringify([{"id":0,"message":"UZVARA!!!!", "image": userArray[u].winner}]));
       }
@@ -213,13 +221,17 @@ app.get('/data', (req, res) => {
   
  });
 app.get('/', (req, res) => {
-
-        res.render('index', { 
-          title: 'Skape vai Laime', 
-          message: 'Šis ir teksts, kuru parāda kā mainīgo', 
-          // columnCount: columnCount, 
-          // rowCount: rowCount 
-      })
+  var userEmail = ''
+  if(req.cookies.email){
+    userEmail = req.cookies.email;
+  }
+    res.render('index', { 
+      title: 'Skape vai Laime', 
+      message: 'Šis ir teksts, kuru parāda kā mainīgo', 
+      email: userEmail,
+      // columnCount: columnCount, 
+      // rowCount: rowCount 
+  })
       
 });
    
