@@ -130,7 +130,9 @@ document.addEventListener('mouseup', () => {
 });
 
   canvas.addEventListener("mouseover", () => {
-    isDragged = isDraggedOutside;
+    if(typeof isDraggedOutside != 'undefined'){
+      isDragged = isDraggedOutside;
+    }
   });
 
   function isBetween(number, min, max) {
@@ -165,7 +167,6 @@ document.addEventListener('mouseup', () => {
                           exists = true;
                           seenImages[i][1] += 1;
                           if(seenImages[i][1] == 3 && !gotAlert){
-                            gotAlert = true;
                             sanemtPazinojumu();
                           }
                           break;
@@ -176,8 +177,8 @@ document.addEventListener('mouseup', () => {
                   }
                   console.log("Atklāts lauciņš nr.", currentItem);
                   if(seenItems.every(element => element == true) && !gotAlert){
-                    gotAlert = true;
-                    sanemtPazinojumu()                  }
+                    sanemtPazinojumu()
+                  }
               }
               currentItem += 1;
           }
@@ -189,4 +190,33 @@ document.addEventListener('mouseup', () => {
 }
 // })
 // .catch(error => console.error('Error fetching data:', error));
+
+function showCustomAlert(imageUrl, message) {
+  const imageDiv = document.createElement('div');
+  imageDiv.className = 'custom-alert-image';
+  var imageUrl = '/public/images/'+imageUrl; // Replace with your image URL
+  const imageElement = document.createElement('img');
+  imageElement.src = imageUrl;
+  imageDiv.appendChild(imageElement);
+
+  const title = document.createElement('h2');
+  title.textContent = message;
+
+  const alertDiv = document.createElement('div');
+  alertDiv.className = 'custom-alert';
+  alertDiv.appendChild(title);
+  alertDiv.appendChild(imageDiv);
+  document.body.appendChild(alertDiv);
+
+  alertDiv.addEventListener('click', function(event) {
+    event.target.closest('.custom-alert').remove();
+  });
+}
+
+
+function removeAlerts(){
+  document.querySelectorAll('.custom-alert').forEach(element => {
+    element.remove();
+  });
+}
 

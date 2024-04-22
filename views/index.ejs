@@ -15,7 +15,7 @@
   <body>
     <div class="container">
       <h1 id ="virsraksts" style="text-align: center " >Skrāpē, bet nelaimē neko</h1>
-      <div id="testdiv">lol</div>
+      <div id="testdiv"></div>
       <div class="base">
         <img src="/public/images/background-layer.png" class="background-image" id="backgroundImage">
         <div class="grid-container">
@@ -43,18 +43,21 @@
 
 
     <script>
-
 function sutit(){
-  var email = document.getElementById("email").value;
+  removeAlerts()
+  useremail = document.getElementById("email").value;
   $.ajax('/api/sakt',
   {
       type:"POST",
       data:{
-        email: email, 
+        email: useremail, 
       },
       success: function (data, status, xhr) {
         // console.log("Incoming data:", data);
-        if(data == ''){
+        if(data == '!email'){
+          // alert("tukši dati");
+          alert("Ievadi normālu epastu");
+        }else if(data == 'wait'){
           // alert("tukši dati");
           alert("Jāuzgiada pirms var atkal spēlēt!");
         }else{
@@ -68,19 +71,26 @@ function sutit(){
 }
 
 function sanemtPazinojumu(){
+  gotAlert = true;
 //$("#saturs").html("");
+// console.log(useremail);
+if(typeof useremail == 'undefined'){
+  console.log("vajadzetu but alertam");
+  return alert("Necenties mani apkrāpt!");
+}
   $.ajax('/api/sanemtPazinojumu',
   {
     type:"POST",
     data:{
-      // useris: lietotajs,
+      email: useremail,
     //  teksts: teksts
     },
     success: function (data, status, xhr) {
-      // console.log(data)
+      console.log("success, data: ",data)
       data = JSON.parse(data);
-        $('#testdiv').html(data[0].zina);
-        alert(data[0].zina)
+        // $('#testdiv').html(data[0].message);
+        showCustomAlert(data[0].image, data[0].message);
+        // alert(data[0].message)
     }
   });
 }

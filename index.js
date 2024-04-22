@@ -16,18 +16,14 @@ app.set('views', 'views');
 app.set('view engine', 'ejs');
 
 function readUsersJson(){
-  fs.readFile('public/users.json', 'utf-8', (err, users) => {
-    if (err) {
-      throw err;
-    } else {
-      if(users == ''){
-        userArray = [];
-      }else{
-        userArray = JSON.parse(users);
-      }
-    }
-  });
+  users = fs.readFileSync('public/users.json', 'utf-8');
+  if(users == ''){
+    userArray = [];
+  }else{
+    userArray = JSON.parse(users);
+  }
 }
+
 readUsersJson();
 
 function getTimeDifferenceInMinutes(date1, date2) {
@@ -44,9 +40,12 @@ function isValidEmail(email) {
   return emailRegex.test(email);
 }
 app.post('/api/sakt', (req, res) => {
+  if(!isValidEmail(req.body.email)){
+    return res.send("!email");
+  }
   const COOLDOWN = 1;
   readUsersJson();
-  console.log(req.body);
+  // console.log(req.body);
   var currentTime = new Date(); 
   canPlay = true;
   userID = -1;
@@ -64,16 +63,17 @@ app.post('/api/sakt', (req, res) => {
 	}
 	if(canPlay){
     setItems()
-      .then((items) => {
-
+      .then((result) => {
+        const { items, winnerImage} = result;
+        console.log("winnerImage no funkcijas:", winnerImage);
         if(Math.floor(Math.random() * 4) == 0){
           winner = true;
         }
         if(userID == -1){
           userID = userArray.length +1;
-          userArray.push({"ID": userID, "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items});
+          userArray.push({"ID": userID, "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items});
         }else{
-          userArray[userID] = {"ID": userID,  "email": req.body.email, "startDateTime": currentTime, "winner": winner, "items":items};
+          userArray[userID] = {"ID": userID,  "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items};
         }
         const userArrayJson = JSON.stringify(userArray);
         fs.writeFile('public/users.json', userArrayJson, (err) => {
@@ -83,11 +83,7 @@ app.post('/api/sakt', (req, res) => {
           console.log("New user saved");
         });
         // console.log(JSON.stringify([{items: items}]));
-        res.send(JSON.stringify([{items: items}]));
-        // res.end();
-
-        // const data = {items:items };
-        // res.json(data);
+        return res.send(JSON.stringify([{items: items}]));
       })
       .catch((error) => {
           console.error('Error fetching data:', error);
@@ -97,18 +93,23 @@ app.post('/api/sakt', (req, res) => {
     console.log("Jāgaida vēl ",COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000, " sekundes");
     // const data = {items:[] };
     //     res.json(data);
-    res.end();
+    return res.send("wait");
   }
   
 });
 
 app.post('/api/sanemtPazinojumu', (req, res) => {
-  if(winner){
-    res.send(JSON.stringify([{"id":0,"zina":"UZVARA!!!!"}]));
-  }else{
-    res.send(JSON.stringify([{"id":1,"zina":"Zaudējums..."}]));
+  // console.log(req.body);
+  for (u in userArray) {
+    // console.log(userArray[u].email, req.body.email);
+		if (userArray[u].email == req.body.email) {
+      if(userArray[u].winner != "unlucky.jpeg"){
+        return res.send(JSON.stringify([{"id":0,"message":"UZVARA!!!!", "image": userArray[u].winner}]));
+      }
+      return res.send(JSON.stringify([{"id":1,"message":"Zaudējums...", "image": userArray[u].winner}]));
+		}
   }
-	res.end();
+  return res.send(JSON.stringify([{"id":2,"message":"Necenties apkrāpt mani!", "image": userArray[u].winner}]));
 });
 
 
@@ -153,7 +154,9 @@ function setItems(){
             items[randomIdx] = winnerImage;
             imageFiles[winnerImageIdx][1] += 1;
           }
+          winnerImage = '/items/'+ winnerImage;
         }else{
+          var winnerImage = 'unlucky.jpeg';
           console.log("Zaudēja");
         }
         for(let i = 0; i < items.length; i++){
@@ -167,7 +170,7 @@ function setItems(){
         }
         // console.log("Funkcija izdod:", items);
         // console.log(imageFiles);
-        resolve(items);
+        resolve({items, winnerImage});
         // console.log(items);
     });
   });
@@ -195,7 +198,7 @@ app.get('/data', (req, res) => {
 	}
   if(canPlay){
     setItems()
-      .then((items) => {
+      .then(({items}) => {
         const data = {items:items };
         res.json(data);
       })
