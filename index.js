@@ -16,7 +16,7 @@ app.set('view engine', 'ejs');
 const items = new Array(9);
 
 function readUsersJson() {
-	users = fs.readFileSync('public/users.json', 'utf-8');
+	users = fs.readFileSync('users.json', 'utf-8');
 	if (users == '') {
 		userArray = [];
 	} else {
@@ -75,7 +75,7 @@ app.post('/api/sakt', (req, res) => {
 				items: items,
 			};
 			const userArrayJson = JSON.stringify(userArray);
-			fs.writeFile('public/users.json', userArrayJson, (err) => {
+			fs.writeFile('users.json', userArrayJson, (err) => {
 				if (err) {
 					throw err;
 				}
@@ -213,7 +213,7 @@ function registerUser(email, password) {
 	hashedPsw = hashPassword(password);
 	userArray.push({ ID: userArray.length, email: email, password: hashedPsw, verified: false });
 	const userArrayJson = JSON.stringify(userArray);
-	fs.writeFile('public/users.json', userArrayJson, (err) => {
+	fs.writeFile('users.json', userArrayJson, (err) => {
 		if (err) {
 			throw err;
 		}
