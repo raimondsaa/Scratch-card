@@ -7,29 +7,26 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     </head>
 <body>
-
-<!-- <form type="post" style="border:1px solid #ccc" id="registerForm"> -->
   <div class="container">
-    <h1>Sign Up</h1>
-    <p>Please fill in this form to create an account.</p>
+    <h1>Reģistrējies</h1>
+    <p>Aizpildi visus lauciņus, lai reģistrētos!</p>
     <hr>
 
-    <label for="email"><b>Email</b></label>
-    <input id="email" type="text" placeholder="Enter Email" name="email" required>
+    <label for="email"><b>e-pasts</b></label>
+    <input id="email" type="text" placeholder="Ievadi e-pastu" name="email" required>
 
-    <label for="psw"><b>Password</b></label>
-    <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
+    <label for="psw"><b>Parole</b></label>
+    <input id="psw" type="password" placeholder="Ievadi paroli" name="psw" required>
 
-    <label for="psw-repeat"><b>Repeat Password</b></label>
-    <input id="pswRepeat" type="password" placeholder="Repeat Password" name="pswRepeat" required>
+    <label for="psw-repeat"><b>Atkārtota parole</b></label>
+    <input id="pswRepeat" type="password" placeholder="Atkārtota parole" name="pswRepeat" required>
     <div class="clearfix">
       <button onclick=cancel() type="button" class="cancelbtn">Cancel</button>
       <button onclick=submit() type="button" class="signupbtn">Sign Up</button>
     </div>
   </div>
-<!-- </form> -->
 <script>
-console.log("cookies:",document.cookie);
+// console.log("cookies:",document.cookie);
 function submit(){
     email = document.getElementById('email').value;
     psw = document.getElementById('psw').value;

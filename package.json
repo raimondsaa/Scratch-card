@@ -1,8 +1,15 @@
 {
-  "dependencies": {
-    "bcrypt": "^5.1.1",
-    "cookie-parser": "^1.4.6",
-    "ejs": "^3.1.10",
-    "express": "^4.19.2"
-  }
+	"scripts": {
+		"build": "node index.js",
+		"format": "prettier --write './**/*.{js,css,json}' --config ./.prettierrc"
+	},
+	"dependencies": {
+		"bcrypt": "^5.1.1",
+		"cookie-parser": "^1.4.6",
+		"ejs": "^3.1.10",
+		"express": "^4.19.2"
+	},
+	"devDependencies": {
+		"prettier": "^3.2.5"
+	}
 }

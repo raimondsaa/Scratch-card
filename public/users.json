@@ -1,1 +1,166 @@
-[{"ID":0,"email":"lol@lol.lol","password":"$2b$10$OgpMpaGeeB2LYZyUXXXx4u.uDoVe52h5iO/Jo4uJu6MPq.YLzu2NG","verified":false,"startDateTime":"2024-04-24T00:37:31.727Z","winner":"/items/hotdog.jpeg","items":["subway.jpg","salad.jpg","hotdog.jpeg","hotdog.jpeg","sandwitch.jpg","chicken.jpg","pasta.jpg","roast-beef.jpg","hotdog.jpeg"]},{"ID":1,"email":"a@a.a","password":"$2b$10$h7Hzeu8PEOn5jLO3U762mOjp8RCnqKl8yia6JtHxZO6mo4XZ91Drq","verified":false},{"ID":2,"email":"fallgejs@gmail.com","password":"$2b$10$qYp8Fs0BxzjhKmS5YvToguQb4TKTnNvB0g99AuxKUDRERo0rCVxOO","verified":false},{"ID":3,"email":"raimondsandris@gmail.com","password":"$2b$10$XIUanKHOkPQi0lQMQJPXxOHRjB5Z7sPE/nUm65b6DlV7a6/sstzo2","verified":false},{"ID":4,"email":"fallgejs@gmail.coma","password":"$2b$10$kTakHIkjYZV6E15yCvbIMOI8jFUXzbkdhqr2OYAsLF6pxZbuYbef2","verified":false,"startDateTime":"2024-04-24T00:18:38.537Z","winner":"unlucky.jpeg","items":["salad.jpg","pasta.jpg","roast-beef.jpg","lasagna.jpg","pasta.jpg","kalmars.png","sandwitch.jpg","kalmars.png","lasagna.jpg"]}]
+[
+	{
+		"ID": 0,
+		"email": "lol@lol.lol",
+		"password": "$2b$10$OgpMpaGeeB2LYZyUXXXx4u.uDoVe52h5iO/Jo4uJu6MPq.YLzu2NG",
+		"verified": false,
+		"startDateTime": "2024-04-24T10:52:48.271Z",
+		"winner": "unlucky.jpeg",
+		"items": [
+			"subway.jpg",
+			"sandwitch.jpg",
+			"chicken.jpg",
+			"pasta.jpg",
+			"sandwitch.jpg",
+			"salad.jpg",
+			"pasta.jpg",
+			"kalmars.png",
+			"burger.jpg"
+		]
+	},
+	{
+		"ID": 1,
+		"email": "a@a.a",
+		"password": "$2b$10$h7Hzeu8PEOn5jLO3U762mOjp8RCnqKl8yia6JtHxZO6mo4XZ91Drq",
+		"verified": false,
+		"startDateTime": "2024-04-24T12:49:18.906Z",
+		"winner": "/items/salad.jpg",
+		"items": [
+			"hotdog.jpeg",
+			"salad.jpg",
+			"salad.jpg",
+			"subway.jpg",
+			"subway.jpg",
+			"salad.jpg",
+			"hotdog.jpeg",
+			"roast-beef.jpg",
+			"kalmars.png"
+		]
+	},
+	{
+		"ID": 2,
+		"email": "fallgejs@gmail.com",
+		"password": "$2b$10$qYp8Fs0BxzjhKmS5YvToguQb4TKTnNvB0g99AuxKUDRERo0rCVxOO",
+		"verified": false
+	},
+	{
+		"ID": 3,
+		"email": "raimondsandris@gmail.com",
+		"password": "$2b$10$XIUanKHOkPQi0lQMQJPXxOHRjB5Z7sPE/nUm65b6DlV7a6/sstzo2",
+		"verified": false
+	},
+	{
+		"ID": 4,
+		"email": "fallgejs@gmail.coma",
+		"password": "$2b$10$kTakHIkjYZV6E15yCvbIMOI8jFUXzbkdhqr2OYAsLF6pxZbuYbef2",
+		"verified": false,
+		"startDateTime": "2024-04-24T00:18:38.537Z",
+		"winner": "unlucky.jpeg",
+		"items": [
+			"salad.jpg",
+			"pasta.jpg",
+			"roast-beef.jpg",
+			"lasagna.jpg",
+			"pasta.jpg",
+			"kalmars.png",
+			"sandwitch.jpg",
+			"kalmars.png",
+			"lasagna.jpg"
+		]
+	},
+	{
+		"ID": 5,
+		"email": "raimondsandriss@gmail.com",
+		"password": "$2b$10$rZ1Ll1vAQEDNeXJphfs8u.ipYzi/o6Mx6xzRjtgvQtnm47hbr76d6",
+		"verified": false,
+		"startDateTime": "2024-04-24T10:24:12.257Z",
+		"winner": "/items/hotdog.jpeg",
+		"items": [
+			"roast-beef.jpg",
+			"noodel.jpg",
+			"hotdog.jpeg",
+			"sandwitch.jpg",
+			"hotdog.jpeg",
+			"hotdog.jpeg",
+			"chicken.jpg",
+			"noodel.jpg",
+			"salad.jpg"
+		]
+	},
+	{
+		"ID": 6,
+		"email": "andrejs@gmail.com",
+		"password": "$2b$10$HpYZ5Clb9ItYLX9pTvpUnO86Z1QAKH04KscFrUw4f9j0MQ.EW6CAK",
+		"verified": false,
+		"startDateTime": "2024-04-24T10:25:36.789Z",
+		"winner": "unlucky.jpeg",
+		"items": [
+			"lasagna.jpg",
+			"subway.jpg",
+			"kalmars.png",
+			"salad.jpg",
+			"noodel.jpg",
+			"chicken.jpg",
+			"kalmars.png",
+			"lasagna.jpg",
+			"salad.jpg"
+		]
+	},
+	{
+		"ID": 7,
+		"email": "andrejs123@gmail.com",
+		"password": "$2b$10$MDnlsD0FHyuDrR6zfPErkexferLlmt7fc0BHWzuKJY5KOyzbmHp..",
+		"verified": false,
+		"startDateTime": "2024-04-24T10:31:20.115Z",
+		"winner": "unlucky.jpeg",
+		"items": [
+			"pasta.jpg",
+			"kalmars.png",
+			"hotdog.jpeg",
+			"burger.jpg",
+			"salad.jpg",
+			"lasagna.jpg",
+			"salad.jpg",
+			"pasta.jpg",
+			"subway.jpg"
+		]
+	},
+	{
+		"ID": 8,
+		"email": "paula@datoriki.lv",
+		"password": "$2b$10$xvZpM8hljUMdA5Xy2lCj0O8phv1.fJJcjYoBtxqPTf0aTbF8qcmtm",
+		"verified": false,
+		"startDateTime": "2024-04-24T10:55:05.130Z",
+		"winner": "unlucky.jpeg",
+		"items": [
+			"burger.jpg",
+			"burger.jpg",
+			"subway.jpg",
+			"roast-beef.jpg",
+			"hotdog.jpeg",
+			"noodel.jpg",
+			"noodel.jpg",
+			"roast-beef.jpg",
+			"chicken.jpg"
+		]
+	},
+	{
+		"ID": 9,
+		"email": "q@q.q",
+		"password": "$2b$10$NGepLD8SqknPPdjJlsfF3.PgHgCF80JTSKyCcABxd.Z00dRUiTy7q",
+		"verified": false,
+		"startDateTime": "2024-04-24T12:48:40.935Z",
+		"winner": "/items/hotdog.jpeg",
+		"items": [
+			"pasta.jpg",
+			"hotdog.jpeg",
+			"hotdog.jpeg",
+			"roast-beef.jpg",
+			"lasagna.jpg",
+			"chicken.jpg",
+			"hotdog.jpeg",
+			"sandwitch.jpg",
+			"noodel.jpg"
+		]
+	}
+]
