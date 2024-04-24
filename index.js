@@ -206,11 +206,6 @@ app.post('/register', (req, res) => {
 	registerUser(email, psw);
 	res.cookie('email', req.body.email);
 	return res.send({ type: 'ok' });
-	//   res.render('index', {
-	//     email: email,
-	// })
-
-	console.log('Form submitted:', { email, psw, pswRepeat });
 });
 
 function registerUser(email, password) {

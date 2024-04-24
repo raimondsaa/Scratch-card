@@ -1,76 +1,89 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Register</title>
-        <link rel="stylesheet" href="/public/registerStyle.css" />
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    </head>
-<body>
-  <div class="container">
-    <h1>Reģistrējies</h1>
-    <p>Aizpildi visus lauciņus, lai reģistrētos!</p>
-    <hr>
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Register</title>
+		<link rel="stylesheet" href="/public/registerStyle.css" />
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	</head>
+	<body>
+		<div class="container">
+			<h1>Reģistrējies</h1>
+			<p>Aizpildi visus lauciņus, lai reģistrētos!</p>
+			<hr />
+			<div id="AlertDiv"></div>
+			<label for="email"><b>e-pasts</b></label>
+			<input id="email" type="text" placeholder="Ievadi e-pastu" name="email" required />
 
-    <label for="email"><b>e-pasts</b></label>
-    <input id="email" type="text" placeholder="Ievadi e-pastu" name="email" required>
+			<label for="psw"><b>Parole</b></label>
+			<input id="psw" type="password" placeholder="Ievadi paroli" name="psw" required />
 
-    <label for="psw"><b>Parole</b></label>
-    <input id="psw" type="password" placeholder="Ievadi paroli" name="psw" required>
-
-    <label for="psw-repeat"><b>Atkārtota parole</b></label>
-    <input id="pswRepeat" type="password" placeholder="Atkārtota parole" name="pswRepeat" required>
-    <div class="clearfix">
-      <button onclick=cancel() type="button" class="cancelbtn">Cancel</button>
-      <button onclick=submit() type="button" class="signupbtn">Sign Up</button>
-    </div>
-  </div>
-<script>
-// console.log("cookies:",document.cookie);
-function submit(){
-    email = document.getElementById('email').value;
-    psw = document.getElementById('psw').value;
-    pswRepeat = document.getElementById('pswRepeat').value;
-    console.log(email, psw, pswRepeat);
-    $.ajax('/register',{
-        type: 'POST',
-        data: {
-            email: email,
-            psw: psw,
-            pswRepeat: pswRepeat,
-        },
-        success: function(response) {
-            console.log(response);
-            // data = JSON.parse(response);
-            console.log(response.type);
-            switch(response.type){
-            case "!email":
-                alert("Ievadi normālu epastu");
-                break;
-            case "exists":
-                alert("This email is registerd");
-                break;
-            case "pw!=pwRepeat":
-                alert("Paroles nesakrīt");
-                break;
-            case "ok":
-                console.log("cookies:",document.cookie);
-                alert("Veiksmīgi reģistrēts");
-                window.location.href = '/';
-                break;
-            default:
-                console.log("unknown response!");
-                
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('Error:', error);
-        }
-    });
-}
-function cancel(){
-    window.location.href = '/';
-}
-</script>
-</body>
+			<label for="psw-repeat"><b>Atkārtota parole</b></label>
+			<input
+				id="pswRepeat"
+				type="password"
+				placeholder="Atkārtota parole"
+				name="pswRepeat"
+				required />
+			<div class="clearfix">
+				<button onclick="cancel()" type="button" class="cancelbtn">Cancel</button>
+				<button onclick="submit()" type="button" class="signupbtn">Sign Up</button>
+			</div>
+		</div>
+		<script>
+			// console.log("cookies:",document.cookie);
+			function submit() {
+				email = document.getElementById('email').value;
+				psw = document.getElementById('psw').value;
+				pswRepeat = document.getElementById('pswRepeat').value;
+				const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+				if (!emailRegex.test(email)) {
+					document.getElementById('AlertDiv').innerHTML = 'Epasts ir nederīgā formā!';
+					return;
+				}
+				if (psw != pswRepeat) {
+					document.getElementById('AlertDiv').innerHTML = 'Nesakrīt paroles!';
+					return;
+				}
+				console.log(email, psw, pswRepeat);
+				$.ajax('/register', {
+					type: 'POST',
+					data: {
+						email: email,
+						psw: psw,
+						pswRepeat: pswRepeat,
+					},
+					success: function (response) {
+						console.log(response);
+						// data = JSON.parse(response);
+						console.log(response.type);
+						switch (response.type) {
+							case '!email':
+								alert('Ievadi normālu epastu');
+								break;
+							case 'exists':
+								alert('This email is registerd');
+								break;
+							case 'pw!=pwRepeat':
+								alert('Paroles nesakrīt');
+								break;
+							case 'ok':
+								console.log('cookies:', document.cookie);
+								alert('Veiksmīgi reģistrēts');
+								window.location.href = '/';
+								break;
+							default:
+								console.log('unknown response!');
+						}
+					},
+					error: function (xhr, status, error) {
+						console.error('Error:', error);
+					},
+				});
+			}
+			function cancel() {
+				window.location.href = '/';
+			}
+		</script>
+	</body>
 </html>
