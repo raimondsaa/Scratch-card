@@ -2,6 +2,7 @@ const express = require('express');
 var path = require('path');
 const cookieParser = require('cookie-parser');
 const fs = require('fs');
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -21,8 +22,9 @@ function readUsersJson(){
   }else{
     userArray = JSON.parse(users);
   }
+  return userArray;
 }
-readUsersJson();
+userArray = readUsersJson();
 
 function getTimeDifferenceInMinutes(date1, date2) {
   const differenceInMilliseconds = Math.abs(date2.getTime() - date1.getTime());
@@ -34,70 +36,124 @@ function isValidEmail(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
+
 app.post('/api/sakt', (req, res) => {
-  if(!isValidEmail(req.body.email)){
-    return res.send(JSON.stringify({type:"!email"}));
-  }
+  console.log(req.body);
   const COOLDOWN = 5;
-  readUsersJson();
-  // console.log(req.body);
+  userArray = readUsersJson();
+  if(!isValidEmail(req.body.email)){
+    console.log("not a valid email");
+    return res.send({type:"!email"});
+  }
   var currentTime = new Date(); 
-  canPlay = true;
-  userID = -1;
-  winner = false;
-	for (u in userArray) {
+  console.log("starting to go trough the array!");
+  console.log(userArray);
+  for (u in userArray) {// Goes trough all of the emails
     // console.log(userArray[u].email, req.body.email);
-		if (userArray[u].email == req.body.email) {
-      console.log("email jau eksiste");
-      userID = u;
+    if (userArray[u].email == req.body.email) {// checks if email is registered
+      console.log("found a registerd email");
       oldStartDate = new Date(userArray[u].startDateTime);
-     if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN){
-        canPlay = false;
+      if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN){
+        console.log("still on cooldown");
+        if(req.body.allowCookies == "true"){
+          res.cookie('email', req.body.email);
+        }
+        var secondsLeft = parseInt(COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000)
+        return res.send({type:"wait", time: secondsLeft});
       }
-		}
-	}
-	if(canPlay){
-    setItems()
-      .then((result) => {
+      if(!bcrypt.compareSync(req.body.psw, userArray[u].password)){
+        console.log("wrong credentials");
+        return res.send({type:"credentials"});
+      }
+      console.log("Starting to create game");
+      result = setItems();
         const { items, winnerImage} = result;
+        // console.log("the games items:", items);
         // console.log("winnerImage no funkcijas:", winnerImage);
-        if(Math.floor(Math.random() * 4) == 0){
-          winner = true;
-        }
-        if(userID == -1){
-          userID = userArray.length +1;
-          userArray.push({"ID": userID, "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items});
-        }else{
-          userArray[userID] = {"ID": userID,  "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items};
-        }
+        userArray[u] = {...userArray[u], "startDateTime": currentTime, "winner": winnerImage, "items":items};
         const userArrayJson = JSON.stringify(userArray);
         fs.writeFile('public/users.json', userArrayJson, (err) => {
           if (err) {
             throw err;
           }
-          console.log("New user saved");
+          console.log("User updated");
         });
-        // console.log(JSON.stringify([{items: items}]));
+        console.log(items);
         if(req.body.allowCookies == "true"){
           res.cookie('email', req.body.email);
         }
-        return res.send(JSON.stringify({type: "ok", items: items}));
-      })
-      .catch((error) => {
-          console.error('Error fetching data:', error);
-      });
-  }else{
-    var secondsLeft = parseInt(COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000)
-    console.log("Šāds email jau eksistē un pildīja pirms mazāk kā minūtes");
-    console.log("Jāgaida vēl ",secondsLeft, " sekundes");
-    // const data = {items:[] };
-    //     res.json(data);
-    if(req.body.allowCookies == "true"){
-      res.cookie('email', req.body.email);
+        console.log("starting game");
+        return res.send({type: "ok", items: items});
     }
-    return res.send(JSON.stringify({type:"wait", time: secondsLeft}));
   }
+  console.log("did not find a registerd email");
+    return res.send({type:"!registered"});
 });
+// app.post('/api/sakt', (req, res) => {
+//   userArray = readUsersJson();
+//   if(!isValidEmail(req.body.email)){
+//     return res.send({type:"!email"});
+//   }
+//   const COOLDOWN = 5;
+//   userArray = readUsersJson();
+//   // console.log(req.body);
+//   var currentTime = new Date(); 
+//   canPlay = true;
+//   userID = -1;
+//   winner = false;
+// 	for (u in userArray) {
+//     // console.log(userArray[u].email, req.body.email);
+// 		if (userArray[u].email == req.body.email) {
+//       console.log("email jau eksiste");
+//       userID = u;
+//       oldStartDate = new Date(userArray[u].startDateTime);
+//      if(getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN){
+//         canPlay = false;
+//       }
+// 		}
+// 	}
+// 	if(canPlay){
+//     setItems()
+//       .then((result) => {
+//         const { items, winnerImage} = result;
+//         // console.log("winnerImage no funkcijas:", winnerImage);
+//         if(Math.floor(Math.random() * 4) == 0){
+//           winner = true;
+//         }
+//         if(userID == -1){
+//           userID = userArray.length +1;
+//           userArray.push({"ID": userID, "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items});
+//         }else{
+//           userArray[userID] = {"ID": userID,  "email": req.body.email, "startDateTime": currentTime, "winner": winnerImage, "items":items};
+//         }
+//         const userArrayJson = JSON.stringify(userArray);
+//         fs.writeFile('public/users.json', userArrayJson, (err) => {
+//           if (err) {
+//             throw err;
+//           }
+//           console.log("New user saved");
+//         });
+//         // console.log(JSON.stringify([{items: items}]));
+//         if(req.body.allowCookies == "true"){
+//           res.cookie('email', req.body.email);
+//         }
+//         return res.send({type: "ok", items: items});
+//       })
+//       .catch((error) => {
+//           console.error('Error fetching data:', error);
+//       });
+//   }else{
+//     var secondsLeft = parseInt(COOLDOWN*60 - Math.abs(oldStartDate.getTime() - currentTime.getTime())/1000)
+//     console.log("Šāds email jau eksistē un pildīja pirms mazāk kā minūtes");
+//     console.log("Jāgaida vēl ",secondsLeft, " sekundes");
+//     // const data = {items:[] };
+//     //     res.json(data);
+//     if(req.body.allowCookies == "true"){
+//       res.cookie('email', req.body.email);
+//     }
+//     return res.send({type:"wait", time: secondsLeft});
+//   }
+// });
 
 app.post('/api/sanemtPazinojumu', (req, res) => {
   // console.log(req.body);
@@ -105,77 +161,80 @@ app.post('/api/sanemtPazinojumu', (req, res) => {
     // console.log(userArray[u].email, req.body.email);
 		if (userArray[u].email == req.body.email) {
       if(userArray[u].winner != "unlucky.jpeg"){
-        return res.send(JSON.stringify([{"id":0,"message":"UZVARA!!!!", "image": userArray[u].winner}]));
+        return res.send({"id":0,"message":"UZVARA!!!!", "image": userArray[u].winner});
       }
-      return res.send(JSON.stringify([{"id":1,"message":"Zaudējums...", "image": userArray[u].winner}]));
+      return res.send({"id":1,"message":"Zaudējums...", "image": userArray[u].winner});
 		}
   }
-  return res.send(JSON.stringify([{"id":2,"message":"Necenties apkrāpt mani!", "image": userArray[u].winner}]));
+  return res.send({"id":2,"message":"Necenties apkrāpt mani!", "image": userArray[u].winner});
 });
 
+function readImagePaths(){
+  const itemPath = path.join(__dirname, '/public/images/items');
+  console.log("path defined");
+  try {
+    const files = fs.readdirSync(itemPath);
+    const imageFiles = files.filter(file => {
+      const ext = path.extname(file).toLowerCase();
+      return ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
+    });
+    console.log("bruh");
+    return imageFiles;
+  } catch (err) {
+    console.error('Error reading directory:', err);
+    return null;
+  }
+}
+const imageFiles = readImagePaths();
 
 function setItems(){
-  return new Promise((resolve, reject) => {
-    winner = false;
-    if(Math.floor(Math.random() * 4) == 0){
-      winner = true;
-    }
-    items.fill(undefined);
-    var winnerItemIdxs = [];
-    const itemPath = path.join(__dirname, '/public/images/items') ;
-  // Read files from the directory
-    fs.readdir(itemPath, (err, files) => {
-        if (err) {
-            console.error('Error reading directory:', err);
-            return;
-        }
-        // Filter image files (you can adjust this filter based on your requirements)
-        const imageFiles = files.filter(file => {
-            const ext = path.extname(file).toLowerCase();
-            return ['.jpg', '.jpeg', '.png', '.gif'].includes(ext);
-        }).map(file => {
-          const fileName = path.basename(file);
-          const count = 0;
-          return [fileName, count];
-      });
-        // console.log('Image files:', imageFiles);
-        const imageCount = imageFiles.length;
-        if(winner){
-          console.log("Uzvarēja!");
-          var winnerImageIdx = Math.floor(Math.random() * imageCount);
-          var winnerImage = imageFiles[winnerImageIdx][0];
-          // console.log('Winner image:', winnerImage);
-          for(let i = 0; i < 3; i++){
-            do{
-              var randomIdx = Math.floor(Math.random() * items.length);
-              // console.log(randomIdx);
-            }while(items[randomIdx] != undefined);
-            console.log(randomIdx, "item ir", winnerImage)
-            winnerItemIdxs.push(randomIdx);
-            items[randomIdx] = winnerImage;
-            imageFiles[winnerImageIdx][1] += 1;
-          }
-          winnerImage = '/items/'+ winnerImage;
-        }else{
-          var winnerImage = 'unlucky.jpeg';
-          console.log("Zaudēja");
-        }
-        for(let i = 0; i < items.length; i++){
-          do{
-          var randomIdx = Math.floor(Math.random() * imageCount);
-        }while(imageFiles[randomIdx][1]>=2);
-          if(items[i] === undefined){
-            items[i] = imageFiles[randomIdx][0];
-            imageFiles[randomIdx][1] += 1;
-          }
-        }
-        // console.log("Funkcija izdod:", items);
-        // console.log(imageFiles);
-        resolve({items, winnerImage});
-        // console.log(items);
-    });
+  var usedItems = imageFiles.map(file => {
+    const fileName = path.basename(file);
+    const count = 0;
+    return [fileName, count];
   });
-  
+  winner = false;
+  if(Math.floor(Math.random() * 4) == 0){
+    winner = true;
+  }
+  items.fill(undefined);
+  var winnerItemIdxs = [];
+// Read files from the directory
+  // console.log('Image files:', usedItems);
+  const imageCount = usedItems.length;
+  if(winner){
+    console.log("Uzvarēja!");
+    var winnerImageIdx = Math.floor(Math.random() * imageCount);
+    var winnerImage = usedItems[winnerImageIdx][0];
+    // console.log('Winner image:', winnerImage);
+    for(let i = 0; i < 3; i++){
+      do{
+        var randomIdx = Math.floor(Math.random() * items.length);
+        // console.log(randomIdx);
+      }while(items[randomIdx] != undefined);
+      console.log(randomIdx, "item ir", winnerImage)
+      winnerItemIdxs.push(randomIdx);
+      items[randomIdx] = winnerImage;
+      usedItems[winnerImageIdx][1] += 1;
+    }
+    winnerImage = '/items/'+ winnerImage;
+  }else{
+    var winnerImage = 'unlucky.jpeg';
+    console.log("Zaudēja");
+  }
+  for(let i = 0; i < items.length; i++){
+    do{
+    var randomIdx = Math.floor(Math.random() * imageCount);
+  }while(usedItems[randomIdx][1]>=2);
+    if(items[i] === undefined){
+      items[i] = usedItems[randomIdx][0];
+      usedItems[randomIdx][1] += 1;
+    }
+  }
+  // console.log("Funkcija izdod:", items);
+  // console.log(usedItems);
+  return {items, winnerImage};
+  // console.log(items);
 }
 
 app.get('/', (req, res) => {
@@ -184,13 +243,62 @@ app.get('/', (req, res) => {
     userEmail = req.cookies.email;
   }
     res.render('index', { 
-      title: 'Skape vai Laime', 
-      message: 'Šis ir teksts, kuru parāda kā mainīgo', 
       email: userEmail,
-      // columnCount: columnCount, 
-      // rowCount: rowCount 
   }) 
 });
+
+app.get('/register', (req, res) => {
+  res.render('register') 
+});
+
+app.post('/register',(req, res) => {
+  console.log(req.body);
+  const email = req.body.email;
+  const psw = req.body.psw;
+  const pswRepeat = req.body.pswRepeat;
+  console.log(email);
+  if(!isValidEmail(email)){
+    return res.send({type:"!email"});
+  }
+  userArray = readUsersJson();
+  for (u in userArray) {
+    // console.log(userArray[u].email, req.body.email);
+		if (userArray[u].email == req.body.email) {
+      return res.send({type:"exists"});
+		}
+  }
+  if(psw !== pswRepeat){
+    return res.send({type:"pw!=pwRepeat"});
+  }
+  registerUser(email, psw);
+  res.cookie('email', req.body.email);
+  return res.send({type:"ok"});
+//   res.render('index', { 
+//     email: email,
+// }) 
+   
+  console.log('Form submitted:', { email, psw, pswRepeat });
+});
+
+function registerUser(email, password){
+  userArray = readUsersJson();
+  hashedPsw = hashPassword(password)
+  userArray.push({"ID": userArray.length, "email": email, "password": hashedPsw, "verified": false});
+  const userArrayJson = JSON.stringify(userArray);
+  fs.writeFile('public/users.json', userArrayJson, (err) => {
+    if (err) {
+      throw err;
+    }
+    console.log("New user saved");
+  });
+}
+
+function hashPassword(password) {
+  const saltRounds = 10;
+  const salt = bcrypt.genSaltSync(saltRounds);
+  const hashedPassword = bcrypt.hashSync(password, salt);
+  return hashedPassword;
+}
 
 app.listen(3000, () => {
 	console.log('Serveris sācis darboties, darbojos uz 3000 porta');

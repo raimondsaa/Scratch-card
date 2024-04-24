@@ -174,7 +174,6 @@ document.addEventListener('mouseup', () => {
       }
   };
   window.onload = init();
-
 }
 
 //Alerts
