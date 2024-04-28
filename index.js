@@ -49,7 +49,9 @@ app.post('/api/sakt', (req, res) => {
 		// Goes trough all of the emails
 		// console.log(userArray[u].email, req.body.email);
 		if (userArray[u].email == req.body.email) {
-			// checks if email is registered
+			if (!bcrypt.compareSync(req.body.psw, userArray[u].password)) {
+				return res.send({ type: 'credentials' });
+			}
 			oldStartDate = new Date(userArray[u].startDateTime);
 			if (getTimeDifferenceInMinutes(oldStartDate, currentTime) < COOLDOWN) {
 				if (req.body.allowCookies == 'true') {
@@ -59,9 +61,6 @@ app.post('/api/sakt', (req, res) => {
 					COOLDOWN * 60 - Math.abs(oldStartDate.getTime() - currentTime.getTime()) / 1000,
 				);
 				return res.send({ type: 'wait', time: secondsLeft });
-			}
-			if (!bcrypt.compareSync(req.body.psw, userArray[u].password)) {
-				return res.send({ type: 'credentials' });
 			}
 			console.log('Starting to create game');
 			result = setItems();
