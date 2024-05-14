@@ -1,3 +1,4 @@
+import http from 'http';
 const express = require('express');
 var path = require('path');
 const cookieParser = require('cookie-parser');
@@ -227,6 +228,11 @@ function hashPassword(password) {
 	return hashedPassword;
 }
 
-app.listen(3000, () => {
-	console.log('Serveris sācis darboties, darbojos uz 3000 porta');
+// app.listen(3000, () => {
+// 	console.log('Serveris sācis darboties, darbojos uz 3000 porta');
+// });
+const server = http.createServer(app);
+
+server.listen(3000, () => {
+	console.log(`Server running on port 3000`);
 });
