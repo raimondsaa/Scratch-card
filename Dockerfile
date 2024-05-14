@@ -8,4 +8,4 @@ RUN npm install
 EXPOSE 3000
 RUN npm rebuild
 
-CMD [ "npm","run","build" ]
+CMD npm run build
