@@ -1,4 +1,4 @@
-import http from 'http';
+const http = require('http');
 const express = require('express');
 var path = require('path');
 const cookieParser = require('cookie-parser');
