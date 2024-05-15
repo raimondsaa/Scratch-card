@@ -226,7 +226,7 @@ function hashPassword(password) {
 	const hashedPassword = bcrypt.hashSync(password, salt);
 	return hashedPassword;
 }
-PORT = 80;
+PORT = 443;
 
 app.listen(PORT, () => {
 	console.log(`Serveris sācis darboties, darbojos uz ${PORT} porta`);
